@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  app-database:
+    image: mysql:5.7
+    command: mysqld --sql_mode=STRICT_TRANS_TABLES
+    ports:
+      - "3308:3306"
+    networks:
+      - app-network
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: app-database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - ./data/:/docker-entrypoint-initdb.d
+
+  # Dashboard DB Container
+  dashboard:
+    container_name: phpmyadmin2
+    image: phpmyadmin/phpmyadmin:latest
+    ports:
+      - "18081:80"
+    depends_on:
+      - app-database
+    environment:
+      - "PMA_HOST=app-database"
+    networks:
+      - app-network
+
+volumes:
+  app_db_volume:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

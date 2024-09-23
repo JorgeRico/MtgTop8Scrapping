@@ -1,14 +1,16 @@
 from functions.functions import Scrapping
 from classes.player import Player
-
 class Top8:
     def __init__(self):
         self.topPlayers = []
+
+    def getTopPlayers(self):
+        return self.topPlayers
     
     def setTopPlayer(self, deckName, playerName, deckHref):
         scrapping = Scrapping()
         if deckName != '' and playerName != '' and deckHref != '':
-            num = len(self.topPlayers)
+            num    = len(self.topPlayers)
             player = Player(num+1, playerName, deckName, scrapping.getPlayerDeckUrl(deckHref))
             self.topPlayers.append(player)
             
@@ -33,10 +35,21 @@ class Top8:
             if self.setTopPlayer(deckName, playerName, deckHref) == True:
                 deckName   = ''
                 playerName = ''
-
-    def getTopPlayers(self):
-        return self.topPlayers
     
+    def setTop8Players(self, soup, idTournament):
+        self.scrapTopPlayers(soup, "chosen_tr")
+        self.scrapTopPlayers(soup, "hover_tr")
+        self.saveTop8Data(str(idTournament))
+
+    def setTop8PlayersDecks(self):
+        for player in self.topPlayers:
+            player.setPlayerDeck()
+    
+    def saveTop8Data(self, idTournament):
+        for item in self.topPlayers:
+            item.savePlayer(idTournament)
+
     def printTopPlayers(self):
         for item in self.topPlayers:
             print(' - ' + str(item.getPlayerNum()) + ' ||| ' + item.getPlayerName() + ' ||| ' + item.getPlayerDeckName() + ' ||| ' + item.getPlayerDeckHref())
+

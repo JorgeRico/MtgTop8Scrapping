@@ -1,23 +1,51 @@
 from classes.top8 import Top8
 from functions.functions import Scrapping
-from classes.deck import Deck
-import sys
+from classes.tournament import Tournament
 
-soup = Scrapping()
-soup = soup.getSoup(soup.getEventUrl('59731'))
-			
-top = Top8()
-top.scrapTopPlayers(soup, "chosen_tr")
-top.scrapTopPlayers(soup, "hover_tr")
-# top.printTopPlayers()
+# tournaments
+# league and name hardcoded
+# ids from www.mtgtop8.com
+tournaments = [
+    {
+        'league' : 1,
+        'name'   : 'LCL Ingenio 2024',
+        'ids'    : [ 51344, 52277, 53297, 54778, 55496, 56478, 57208, 58206, 59596 ]
+    },
+    {
+        'league' : 2,
+        'name'   : 'Lliga Minoria 2024',
+        'ids'    :  [ 52033, 52633, 53585, 54411, 55694, 56867, 57385, 58500 ]
+    }
+]
 
-for player in top.getTopPlayers():
+# scrapping data
+def scrapping(id, name, idLeague):
     soup = Scrapping()
-    soup = soup.getSoup(player.getPlayerDeckHref())
+    top = Top8()
 
-    deck = Deck()
-    deck.getDeck(soup)
+    # scrapping
+    soup = soup.getSoup(soup.getEventUrl(id))
+    # Tournament info
+    tournament   = Tournament()
+    idTournament = tournament.getTournamentData(soup, name, idLeague)
+    # top 8 players
+    top.setTop8Players(soup, idTournament)
+    # decks and cards
+    top.setTop8PlayersDecks()
 
-    player.setPlayerDeck(deck.getDeckCards())
-    # player.printPlayerDeckCards()
-    # sys.exit()
+# main function
+def main(tournaments):
+    for item in tournaments:
+        print('   - Scrapping : %s' %(item['name']))
+        for id in item['ids']:
+            print('     * Scrapping tournament id: %s' %(id))
+            scrapping(str(id), item['name'], item['league'])
+
+
+# ---------------------------------
+# Start
+# ---------------------------------
+print(' - Start scrapping !!!')
+main(tournaments)
+print(' - Finish scrapping !!!')
+
