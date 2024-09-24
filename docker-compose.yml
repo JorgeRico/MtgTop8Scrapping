@@ -2,6 +2,7 @@ version: "3"
 
 services:
   app-database:
+    container_name: app-database
     image: mysql:5.7
     command: mysqld --sql_mode=STRICT_TRANS_TABLES
     ports:
@@ -30,6 +31,18 @@ services:
     networks:
       - app-network
 
+  fastapi:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    tty: true
+    volumes:
+      - ./fastapi:/app
+    networks:
+      - app-network
+
 volumes:
   app_db_volume:
     driver: local
@@ -37,3 +50,4 @@ volumes:
 networks:
   app-network:
     driver: bridge
+    name: app-network
