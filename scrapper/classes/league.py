@@ -15,5 +15,7 @@ class League:
     def saveLeague(self):
         db         = Db()
         connection = db.connection()
-        query      = 'INSERT INTO league (id, name) VALUES ( "%s", "%s" );' %(self.id, self.name)
-        return db.executeInsertQuery(connection, query)
+        
+        query = 'INSERT INTO league (id, name) VALUES ( "%s", "%s" ) ' %(self.id, self.name)
+        query += 'ON DUPLICATE KEY UPDATE id="%s", name="%s";' %(self.id, self.name)
+        db.executeInsertQuery(connection, query)

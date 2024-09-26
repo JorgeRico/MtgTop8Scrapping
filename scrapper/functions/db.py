@@ -3,11 +3,11 @@ from mysql.connector import Error
 class Db:
 
     def __init__(self):
-        self.hostName        = 'localhost'
-        self.portName        = '3308'
-        self.databaseName    = 'app-database'
-        self.userName        = 'user'
-        self.passwordText    = 'password'
+        self.hostName     = 'host.docker.internal'
+        self.portName     = '3308'
+        self.databaseName = 'app-database'
+        self.userName     = 'user'
+        self.passwordText = 'password'
 
     def connection(self):
         connection = None
@@ -33,7 +33,7 @@ class Db:
             user     = self.userName,
             password = self.passwordText
         )
-
+        
         return connection
 
     def connected(self, connection):

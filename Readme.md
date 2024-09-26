@@ -15,15 +15,9 @@ Mtg scrapper + fastapi + mysql
 
 #### Scrapper
 > If your database is empty you can run python scrapper to fill with data.
-
-#### Scrapper Requirements (it's not dockerized)
-- urllib
-- urllib.request
-- BeautifulSoup
-- mysql.connector
-
-#### Execute scrapper
-- /scrapper/py app.py
+- /scrapper
+- docker-compose build
+- docker-compose up -d
 
 #### References
 - https://fastapi.tiangolo.com/
