@@ -23,7 +23,7 @@ Mtg scrapper + fastapi + mysql
 - mysql.connector
 
 #### Execute scrapper
-- py app.py
+- /scrapper/py app.py
 
 #### References
 - https://fastapi.tiangolo.com/
