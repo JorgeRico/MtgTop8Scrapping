@@ -1,5 +1,5 @@
 # Mtg Tournament scrapper
-Mtg scrapper + fastapi + mysql
+Python + fastapi + mysql + React + nginx
 
 #### Database + api
 > If you want to load a database, add .sql file on /data/ folder
