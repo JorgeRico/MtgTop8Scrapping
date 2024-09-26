@@ -1,31 +1,30 @@
 # Mtg Tournament scrapper
-Mtg scrapper
+Mtg scrapper + fastapi + mysql
 
-#### Execute app
-```bash
-1. Build and run docker - Database + api
-2. Execute python on terminal to fill database
-```
+#### Database + api
+> If you want to load a database, add .sql file on /data/ folder
+- docker-compose build
+- docker-compose up -d
 
-#### Build
-```bash
- - docker-compose build
-```
+#### Dumps
+- /dump/clean_database/
+- /dump/last/
 
-#### Run
-```bash
- - docker-compose up -d
-```
+#### Swagger
+- http://localhost:8000/docs
 
-#### Run scrapper
-```bash
- - python app.py
-```
+#### Scrapper
+> If your database is empty you can run python scrapper to fill with data.
 
-#### Endpoints
-```bash
- - GET http://localhost:8000/leagues/{id}/tournaments
- - GET http://localhost:8000/tournaments/{id}
- - GET http://localhost:8000/tournaments/{id}/stats
- - GET http://localhost:8000/tournaments/{idTournament}/players/{idPlayer}/decks
-```
+#### Scrapper Requirements (it's not dockerized)
+- urllib
+- urllib.request
+- BeautifulSoup
+- mysql.connector
+
+#### Execute scrapper
+- py app.py
+
+#### References
+- https://fastapi.tiangolo.com/
+- https://hub.docker.com/

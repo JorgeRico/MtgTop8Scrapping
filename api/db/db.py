@@ -18,10 +18,18 @@ class Db:
             database = self.databaseName
         )
     
-    def getSelectQuery(self, conn, query):
+    def getSelectListResultQuery(self, conn, query):
         cursor = conn.cursor(dictionary=True)
         cursor.execute(query)
         result = cursor.fetchall()
+        conn.close()
+
+        return result
+    
+    def getSelectSingleResultQuery(self, conn, query):
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query)
+        result = cursor.fetchone()
         conn.close()
 
         return result

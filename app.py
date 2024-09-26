@@ -1,6 +1,7 @@
 from classes.top8 import Top8
 from functions.functions import Scrapping
 from classes.tournament import Tournament
+from classes.league import League
 
 # tournaments
 # league and name hardcoded
@@ -37,6 +38,8 @@ def scrapping(id, name, idLeague):
 def main(tournaments):
     for item in tournaments:
         print('   - Scrapping : %s' %(item['name']))
+        league = League(item['league'], item['name'])
+        league.saveLeague()
         for id in item['ids']:
             print('     * Scrapping tournament id: %s' %(id))
             scrapping(str(id), item['name'], item['league'])

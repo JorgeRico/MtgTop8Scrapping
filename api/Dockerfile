@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Base image
-FROM python:3.9-slim-buster
+FROM python:3.10-slim-buster
 
 # Set the working directory
 WORKDIR /fastapi
@@ -18,4 +18,3 @@ COPY . .
 EXPOSE 8000
 
 CMD ["uvicorn", "main:app", "--host=0.0.0.0", "--reload"]
-# CMD ["python3", "main.py", "--host=0.0.0.0", "--port=8000"]

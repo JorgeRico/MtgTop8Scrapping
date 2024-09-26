@@ -31,7 +31,7 @@ class Deck:
     def saveDeckCard(self, card):
         db         = Db()
         connection = db.connection()
-        query      = 'INSERT INTO deckCards (name, num, idDeck, board) VALUES ( "%s", "%s", "%s", "%s" );' %(card.getName(), card.getNum(), card.getIdDeck(), card.getBoard())
+        query      = 'INSERT INTO cards (name, num, idDeck, board) VALUES ( "%s", "%s", "%s", "%s" );' %(card.getName().strip(), card.getNum(), card.getIdDeck(), card.getBoard())
         db.executeInsertQuery(connection, query)
     
     def printDeckCards(self):
