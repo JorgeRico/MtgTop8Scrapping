@@ -13,3 +13,7 @@ class PlayerData(BaseModel):
     position : int
     idDeck   : int
     deck     : list[Card]
+
+class PlayerStats(BaseModel):
+    num  : int 
+    name : str

@@ -4,14 +4,30 @@ from typing import Any
 from models.league import League
 from models.tournament import Tournament, TournamentData
 from models.player import Player, PlayerData
-from models.card import Card, TopCard, MAINDECK_CARD, SIDEBOARD_CARD
+from models.card import Card, MAINDECK_CARD, SIDEBOARD_CARD
 from models.deck import Deck
+from models.stats import TournamentStats, LeagueStats
 from errors.errors import notFound
 from codes.codes import HTTP_200, HTTP_404
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:8000",
+]
 
 app = FastAPI(exception_handlers={
     404: notFound
 })
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/health", status_code=HTTP_200, description="Health endpoint")
 async def index():
@@ -20,6 +36,19 @@ async def index():
 # ---------------------------------------------
 # League endpoints
 # ---------------------------------------------
+@app.get("/leagues", response_model=list[League], status_code=HTTP_200, description="Leagues info")
+async def getLeagueData() -> Any:
+    db     = Db()
+    conn   = db.connect()
+
+    query  = 'SELECT id, name FROM league'
+    result = db.getSelectListResultQuery(conn, query)
+
+    if result is None or id is None:
+        raise HTTPException(status_code=HTTP_404, detail="League not found")
+
+    return result
+
 @app.get("/leagues/{id}", response_model=League, status_code=HTTP_200, description="League info")
 async def getLeagueData(id: int = Path(gt = 0, title="Id League", description="League resource identifier")) -> Any:
     db     = Db()
@@ -67,7 +96,7 @@ async def getTournamentPlayers(id: int = Path(gt = 0, title="Id Tournament", des
     db     = Db()
     conn   = db.connect()
 
-    query  = 'SELECT id, name, position, idDeck FROM player WHERE idTournament = ' + str(id)
+    query  = 'SELECT id, name, position, idDeck FROM player WHERE idTournament = ' + str(id) + ' ORDER BY position ASC'
     result = db.getSelectListResultQuery(conn, query)
 
     if len(result) == 0:
@@ -177,7 +206,7 @@ async def getDeckCards(id: int = Path(gt = 0, title="Id Deck", description="Deck
 # ---------------------------------------------
 # League Stats endpoints
 # ---------------------------------------------
-@app.get("/stats/leagues/{id}/cards", response_model=list[TopCard], status_code=HTTP_200, description="Top 10 league cards list")
+@app.get("/leagues/{id}/stats", response_model=LeagueStats, status_code=HTTP_200, description="League Stats")
 async def getTop10LeagueCards(id: int = Path(gt = 0, title="Id League", description="League resource identifier")):
     db     = Db()
     conn   = db.connect()
@@ -190,15 +219,11 @@ async def getTop10LeagueCards(id: int = Path(gt = 0, title="Id League", descript
     query +="ORDER BY num desc "
     query +="LIMIT 20;"
 
-    result = db.getSelectListResultQuery(conn, query)
+    top20 = db.getSelectListResultQuery(conn, query)
 
-    if len(result) == 0:
+    if len(top20) == 0:
         raise HTTPException(status_code=HTTP_404, detail="No items found")
 
-    return result
-
-@app.get("/stats/leagues/{id}/main/cards", response_model=list[TopCard], status_code=HTTP_200, description="Top 10 Maindeck League cards list")
-async def getTop10LeagueMdCards(id: int = Path(gt = 0, title="Id League", description="League resource identifier")):
     db     = Db()
     conn   = db.connect()
 
@@ -210,15 +235,11 @@ async def getTop10LeagueMdCards(id: int = Path(gt = 0, title="Id League", descri
     query +="ORDER BY num desc "
     query +="LIMIT 20;"
 
-    result = db.getSelectListResultQuery(conn, query)
+    mb = db.getSelectListResultQuery(conn, query)
 
-    if len(result) == 0:
+    if len(mb) == 0:
         raise HTTPException(status_code=HTTP_404, detail="No items found")
 
-    return result
-
-@app.get("/stats/leagues/{id}/side/cards", response_model=list[TopCard], status_code=HTTP_200, description="Top 10 Sideboard League cards list")
-async def getTop10LeagueSbCards(id: int = Path(gt = 0, title="Id League", description="League resource identifier")):
     db     = Db()
     conn   = db.connect()
 
@@ -230,15 +251,11 @@ async def getTop10LeagueSbCards(id: int = Path(gt = 0, title="Id League", descri
     query +="ORDER BY num desc "
     query +="LIMIT 20;"
 
-    result = db.getSelectListResultQuery(conn, query)
+    sb = db.getSelectListResultQuery(conn, query)
 
-    if len(result) == 0:
+    if len(sb) == 0:
         raise HTTPException(status_code=HTTP_404, detail="No items found")
 
-    return result
-
-@app.get("/stats/leagues/{id}/players", response_model=list[TopCard], status_code=HTTP_200, description="Top 10 Players list")
-async def getTop10Players(id: int = Path(gt = 0, title="Id League", description="League resource identifier")):
     db     = Db()
     conn   = db.connect()
 
@@ -249,18 +266,18 @@ async def getTop10Players(id: int = Path(gt = 0, title="Id League", description=
     query +="ORDER BY num desc "
     # query +="LIMIT 10;"
 
-    result = db.getSelectListResultQuery(conn, query)
+    players = db.getSelectListResultQuery(conn, query)
 
-    if len(result) == 0:
+    if len(players) == 0:
         raise HTTPException(status_code=HTTP_404, detail="No items found")
 
-    return result
+    return LeagueStats(top20=top20, mb=mb, sb=sb, players=players)
 
 # ---------------------------------------------
 # Tournament Stats endpoints
 # ---------------------------------------------
-@app.get("/stats/tournaments/{id}/cards", response_model=list[TopCard], status_code=HTTP_200, description="Top 10 tournament cards list")
-async def getTop10TournamentCards(id: int = Path(gt = 0, title="Id Tournament", description="Tournament resource identifier")):
+@app.get("/tournaments/{id}/stats", response_model=TournamentStats, status_code=HTTP_200, description="Tournament stats")
+async def getTournamentStats(id: int = Path(gt = 0, title="Id Tournament", description="Tournament resource identifier")):
     db     = Db()
     conn   = db.connect()
 
@@ -272,15 +289,11 @@ async def getTop10TournamentCards(id: int = Path(gt = 0, title="Id Tournament", 
     query +="ORDER BY num desc "
     query +="LIMIT 10;"
 
-    result = db.getSelectListResultQuery(conn, query)
+    top10 = db.getSelectListResultQuery(conn, query)
 
-    if len(result) == 0:
+    if len(top10) == 0:
         raise HTTPException(status_code=HTTP_404, detail="No items found")
-
-    return result
-
-@app.get("/stats/tournaments/{id}/main/cards", response_model=list[TopCard], status_code=HTTP_200, description="Top 10 Maindeck tournament cards list")
-async def getTop10TournamentMdCards(id: int = Path(gt = 0, title="Id Tournament", description="Tournament resource identifier")):
+    
     db     = Db()
     conn   = db.connect()
 
@@ -292,15 +305,11 @@ async def getTop10TournamentMdCards(id: int = Path(gt = 0, title="Id Tournament"
     query +="ORDER BY num desc "
     query +="LIMIT 10;"
 
-    result = db.getSelectListResultQuery(conn, query)
+    mb = db.getSelectListResultQuery(conn, query)
 
-    if len(result) == 0:
+    if len(mb) == 0:
         raise HTTPException(status_code=HTTP_404, detail="No items found")
-
-    return result
-
-@app.get("/stats/tournaments/{id}/side/cards", response_model=list[TopCard], status_code=HTTP_200, description="Top 10 Sideboard tournament cards list")
-async def getTop10TournamentSbCards(id: int = Path(gt = 0, title="Id Tournament", description="Tournament resource identifier")):
+    
     db     = Db()
     conn   = db.connect()
 
@@ -312,9 +321,9 @@ async def getTop10TournamentSbCards(id: int = Path(gt = 0, title="Id Tournament"
     query +="ORDER BY num desc "
     query +="LIMIT 10;"
 
-    result = db.getSelectListResultQuery(conn, query)
+    sb = db.getSelectListResultQuery(conn, query)
 
-    if len(result) == 0:
+    if len(sb) == 0:
         raise HTTPException(status_code=HTTP_404, detail="No items found")
 
-    return result
+    return TournamentStats(top10=top10, mb=mb, sb=sb)
